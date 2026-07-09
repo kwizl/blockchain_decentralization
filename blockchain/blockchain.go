@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
 	"runtime"
@@ -27,11 +28,8 @@ type BlockChainIterator struct {
 }
 
 func DBExists() bool {
-	if _, err := os.Stat(dbFile); os.IsNotExist(err) {
-		return false
-	}
-
-	return true
+	_, err := os.Stat(dbFile)
+	return !errors.Is(err, os.ErrNotExist)
 }
 
 // InitBlockChain init calls the Genesis method

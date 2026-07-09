@@ -9,23 +9,9 @@ import (
 	"log"
 )
 
-type Transaction struct {
-	ID      []byte
-	Inputs  []TxInput
-	Outputs []TxOutput
-}
 
-type TxOutput struct {
-	Value  int
-	PubKey string
-}
-
-type TxInput struct {
-	ID  []byte
-	Out int
-	Sig string
-}
-
+// Hashes the contents of the Transaction (Input and Output)
+// Then sets it as an ID
 func (tx *Transaction) SetID() {
 	var encoded bytes.Buffer
 	var hash [32]byte
@@ -53,19 +39,6 @@ func CoinbaseTx(to, data string) *Transaction {
 	return &tx
 }
 
-// Checks if the transaction is a coinbase transaction
-func (tx *Transaction) IsCoinbase() bool {
-	return len(tx.Inputs) == 1 && len(tx.Inputs[0].ID) == 0 && tx.Inputs[0].Out == -1
-}
-
-func (in *TxInput) CanUnlock(data string) bool {
-	return in.Sig == data
-}
-
-func (out *TxOutput) CanBeUnlocked(data string) bool {
-	return out.PubKey == data
-}
-
 func NewTransaction(from, to string, amount int, chain *BlockChain) *Transaction {
 	var inputs  []TxInput
 	var outputs []TxOutput
@@ -84,7 +57,6 @@ func NewTransaction(from, to string, amount int, chain *BlockChain) *Transaction
 			input := TxInput{txID, out, from}
 			inputs = append(inputs, input)
 		}
-
 	}
 
 	outputs = append(outputs, TxOutput{amount, to})

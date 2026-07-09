@@ -21,7 +21,7 @@ func (b *Block) DeriveHash() {
 	b.Hash = hash[:]
 }
 
-func (b *Block) Hashtransactions() []byte {
+func (b *Block) HashTransactions() []byte {
 	var txHashes [][]byte
 	var txHash [32]byte
 
@@ -34,7 +34,7 @@ func (b *Block) Hashtransactions() []byte {
 	return txHash[:]
 }
 
-// CreateBlock creates the block in the blockchain
+// Create block creates the block in the blockchain
 func CreateBlock(txs []*Transaction, prevHash []byte) *Block {
 	block := &Block{[]byte{}, txs, prevHash, 0}
 	pow := NewProof(block)
@@ -52,7 +52,7 @@ func Genesis(coinbase *Transaction) *Block {
 	return CreateBlock([]*Transaction{coinbase}, []byte{})
 }
 
-// Serialize bytes for BadgerDB since it sotres data in bytes
+// Serialize bytes for BadgerDB since it stores data in bytes
 func (b *Block) Serialize() []byte {
 	var result bytes.Buffer
 	encoder := gob.NewEncoder(&result)
