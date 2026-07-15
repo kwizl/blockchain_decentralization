@@ -16,25 +16,30 @@ const (
 )
 
 type Wallet struct {
-	PrivateKey ecdsa.PrivateKey
+	PrivateKey []byte
 	PublicKey  []byte
 }
 
 // Generates private key and public key
-func NewKeyPair() (ecdsa.PrivateKey, []byte) {
+func NewKeyPair() ([]byte, []byte) {
 	curve := elliptic.P256()
 
-	private, err := ecdsa.GenerateKey(curve, rand.Reader)
+	privateKey, err := ecdsa.GenerateKey(curve, rand.Reader)
+	if err != nil {
+		log.Fatalf("Failed to generate private key: %v", err)
+	}
+
+	private, err := x509.MarshalECPrivateKey(privateKey)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	pub, err := x509.MarshalPKIXPublicKey(&private.PublicKey)
+	public, err := x509.MarshalPKIXPublicKey(&privateKey.PublicKey)
 	if err != nil {
 		log.Fatalf("Failed to marshal public key: %v", err)
 	}
 
-	return *private, pub
+	return private, public
 }
 
 func MakeWallet() *Wallet {
