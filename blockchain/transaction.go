@@ -70,7 +70,7 @@ func CoinbaseTx(to, data string) *Transaction {
 	return &tx
 }
 
-func NewTransaction(from, to string, amount int, chain *BlockChain) (*Transaction, error) {
+func NewTransaction(from, to string, amount int, UTXO *UTXOSet) (*Transaction, error) {
 	var inputs []TxInput
 	var outputs []TxOutput
 
@@ -79,7 +79,7 @@ func NewTransaction(from, to string, amount int, chain *BlockChain) (*Transactio
 	w := wallets.GetWallet(from)
 	pubKeyHash := wallet.PublicKeyHash(w.PublicKey)
 
-	acc, validOutputs := chain.FindSpendableOutputs(pubKeyHash, amount)
+	acc, validOutputs := UTXO.FindSpendableOutputs(pubKeyHash, amount)
 
 	if acc < amount {
 		log.Panic("Error: not enough founds")
@@ -107,7 +107,7 @@ func NewTransaction(from, to string, amount int, chain *BlockChain) (*Transactio
 	privKey, err := x509.ParseECPrivateKey(w.PrivateKey)
 	
 	if err == nil {		
-		chain.SignTransaction(&tx, *privKey)
+		UTXO.Blockchain.SignTransaction(&tx, *privKey)
 	}
 	
 	if err != nil {
@@ -119,7 +119,7 @@ func NewTransaction(from, to string, amount int, chain *BlockChain) (*Transactio
 			return nil, errors.New("The key is not an ECDSA private key")
 		}
 
-		chain.SignTransaction(&tx, *ecdsaKey)
+		UTXO.Blockchain.SignTransaction(&tx, *ecdsaKey)
 	}
 
 	return &tx, nil

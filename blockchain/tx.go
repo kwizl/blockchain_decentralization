@@ -3,6 +3,7 @@ package blockchain
 import (
 	"blockchain_decentralization/wallet"
 	"bytes"
+	"encoding/gob"
 )
 
 type Transaction struct {
@@ -23,6 +24,30 @@ type TxInput struct {
 	Out       int
 	Signature []byte
 	PubKey    []byte
+}
+
+type TxOutputs struct {
+	Outputs []TxOutput
+}
+
+// Serialize List of Transactions of new coins
+func (outs TxOutputs) Serialize() []byte {
+	var buffer bytes.Buffer
+	encode := gob.NewEncoder(&buffer)
+	err := encode.Encode(outs)
+	Handle(err)
+
+	return buffer.Bytes()
+}
+
+// Deserialize List of Transactions of new coins
+func DeserializeOutputs(data []byte) *TxOutputs {
+	var outputs TxOutputs
+	decode := gob.NewDecoder(bytes.NewReader(data))
+	err := decode.Decode(&outputs)
+	Handle(err)
+
+	return &outputs
 }
 
 func NewTXOutput(value int, address string) *TxOutput {
